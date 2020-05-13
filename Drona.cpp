@@ -1,69 +1,113 @@
 #include "Drona.h"
+#include<string.h>
+#include<sstream>
 
-Drona::Drona():Gadget()
-{
+Drona::Drona() {
+	this->rotoare = 0;
+}
+Drona::Drona(const char* p, const char* m, int u, int r) :Serie(p, m, u) {
+	this->rotoare = r;
 }
 
-Drona::Drona(string p, string m, int u, int r):Gadget(p,m,u)
-{
-	nrRotoare = r;
+Drona::Drona(const Drona& d) :Serie(d) {
+	this->rotoare = d.rotoare;
 }
 
-Drona::Drona(Drona & d):Gadget(d)
-{
-	nrRotoare = d.nrRotoare;
+Drona::Drona(string linie, char delim) {
+	vector<string> tokens = splitLine(linie, delim);
+	this->producator = new char[tokens[0].length() + 1];
+	strcpy_s(this->producator, tokens[0].length() + 1, tokens[0].c_str());
+
+	this->model = new char[tokens[1].length() + 1];
+	strcpy_s(this->model, tokens[1].length() + 1, tokens[1].c_str());
+	
+	this->unitati = stoi(tokens[2]);
+	this->rotoare = stoi(tokens[3]);
 }
 
-Drona::~Drona()
-{
+Drona::~Drona() {
+	if (this->producator) {
+		delete[] this->producator;
+		this->producator = NULL;
+	}
+	if (this->model) {
+		delete[] this->model;
+		this->model = NULL;
+	}
+}
+Serie* Drona::clone() {
+	Drona* newSerie = new Drona();
+	newSerie->setProducator(this->producator);
+	newSerie->setModel(this->model);
+	newSerie->setUnitati(this->unitati);
+	newSerie->setRotoare(this->rotoare);
+	return newSerie;
 }
 
-int Drona::getRotoare()
-{
-	return nrRotoare;
+int Drona::getRotoare() {
+	return this->rotoare;
 }
 
-void Drona::setRotoare(int r)
-{
-	nrRotoare = r;
+void Drona::setRotoare(int r) {
+	this->rotoare = r;
 }
 
-void Drona::read(istream & input)
-{
-	string prod, model;
-	int unit, rotoare;
-
-	input >> prod;
-	setNumeProd(prod);
-	input >> model;
-	setNumeModel(model);
-	input >> unit;
-	setUnitati(unit);
-	input >> rotoare;
-	setRotoare(rotoare);
+Drona& Drona::operator =(const Drona& d) {
+	if (this == &d) return *this;
+	if (d.producator) {
+		if (this->producator) delete[] this->producator;
+		this->producator = new char[strlen(d.producator) + 1];
+		strcpy_s(this->producator, strlen(d.producator) + 1, d.producator);
+	}
+	if (d.model) {
+		if (this->model)delete[]this->model;
+		this->model = new char[strlen(d.model) + 1];
+		strcpy_s(this->model, strlen(d.model) + 1, d.model);
+	}
+	this->unitati = d.unitati;
+	this->rotoare = d.rotoare;
 }
 
-void Drona::write(ostream & output)
-{
-	output << "Producator: " << getNumeProd() << endl;
-	output << "Model: " << getNumeModel() << endl;
-	output << "Nr unitati: " << getUnitati() << endl;
-	output << "Nr rotoare: " << nrRotoare << endl;
+string Drona::toString() {
+	string p, m;
+	p = this->producator;
+	m = this->model;
+	return  p + " " + m + " " + to_string(this->unitati) + " " + to_string(this->rotoare);
+}
+string Drona::toStringDelim(char delim) {
+	string p, m;
+	p = this->producator;
+	m = this->model;
+	return  p + delim + m + delim + to_string(this->unitati) + delim + to_string(this->rotoare);
 }
 
-string Drona::toString()
-{
-	stringstream ss;
-	ss << "Drona: " << this->numeProducator << ", " << this->numeModel << ", " << this->unitatiProduse << ", " << this->nrRotoare << endl;
-	return ss.str();
+ostream& operator<<(ostream& os, Drona d) {
+	os << d.producator << " " << d.model << " " << d.unitati << " " << d.rotoare << endl;
+	return os;
 }
 
-Drona* Drona::clone()
-{
-	Drona* newT = new Drona();
-	newT->setNumeProd(numeProducator);
-	newT->setNumeModel(numeModel);
-	newT->setUnitati(unitatiProduse);
-	newT->nrRotoare = nrRotoare;
-	return newT;
+istream& operator>>(istream& is, Drona& d) {
+	cout << "Introduceti producatorul: ";
+	char* p = new char[20];
+	is >> p;
+	
+	cout << "Introduceti modelul: ";
+	char* m = new char[20];
+	is >> m;
+	
+	cout << "Introduceti numarul de unitati: ";
+	int u;
+	is >> u;
+	
+	cout << "Introduceti numarul de rotoare: ";
+	int r;
+	is >> r;
+	
+	d.setProducator(p);
+	d.setModel(m);
+	d.setUnitati(u);
+	d.setRotoare(r);
+	delete[] p;
+	delete[] m;
+	return is;
 }

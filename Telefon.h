@@ -1,22 +1,28 @@
 #pragma once
-#include "Gadget.h"
-class Telefon :
-	public Gadget
-{
+#include "Serie.h"
+#include<iostream>
+#include<string>
+#include <vector>
+
+using namespace std;
+
+class Telefon :public Serie {
 private:
-	string operatoriComp;
+	vector<string>operatori;
 public:
 	Telefon();
-	Telefon(string p, string m, int u, string o);
-	Telefon(Telefon &t);
+	Telefon(const char* p, const char* m, int u, vector<string> o);
+	Telefon(const Telefon& t);
+	Telefon& operator= (const Telefon& t);
+	Telefon(string linie, char delim); //conversie
+	
+	Serie* clone();
+	vector<string> getOperatori();
+	void setOperatori(vector<string> o);
+
+	friend ostream& operator <<(ostream& os, Telefon t);
+	friend istream& operator >>(istream& is, Telefon& t);
+	string toString();
+	string toStringDelim(char delim);
 	~Telefon();
-
-	string getOperatori();
-	void setOperatori(string o);
-
-	void read(istream& input)override;
-	void write(ostream& output)override;
-	string toString() override;
-	Telefon* clone()override;
 };
-
